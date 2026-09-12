@@ -1,0 +1,688 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>IBRA METHOD | Program Builder v1.2</title>
+<style>
+:root{--bg:#090909;--card:#121212;--line:#292929;--text:#f2f2f2;--muted:#9b9b9b;--accent:#fff}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:Inter,Arial,sans-serif}
+.wrap{max-width:1180px;margin:auto;padding:28px 18px 70px}.top{display:flex;justify-content:space-between;gap:20px;align-items:flex-end;border-bottom:1px solid var(--line);padding-bottom:22px;margin-bottom:22px}
+.kicker{font-size:12px;letter-spacing:.18em;color:var(--muted)}h1{font-size:32px;margin:7px 0 0;letter-spacing:-.03em}.badge{border:1px solid var(--line);padding:9px 12px;font-size:11px;color:var(--muted)}
+nav{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:20px}button,.btn{background:#171717;color:#fff;border:1px solid #303030;padding:11px 14px;border-radius:8px;cursor:pointer}button:hover{border-color:#666}.primary{background:#eee;color:#080808;border-color:#eee;font-weight:700}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:18px}.full{grid-column:1/-1}
+h2{font-size:17px;margin:0 0 14px}.sub{font-size:12px;color:var(--muted);margin:-7px 0 14px;line-height:1.5}
+label{display:block;font-size:12px;color:var(--muted);margin:12px 0 6px}input,select,textarea{width:100%;background:#0c0c0c;border:1px solid #303030;color:#fff;border-radius:7px;padding:11px;font:inherit}textarea{min-height:75px;resize:vertical}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:10px}.checks{display:grid;grid-template-columns:repeat(2,1fr);gap:7px}.check{border:1px solid #292929;border-radius:7px;padding:9px;font-size:12px}.check input{width:auto;margin-right:7px}
+.test{border-top:1px solid var(--line);padding-top:12px;margin-top:12px}.test:first-child{border-top:0;padding-top:0;margin-top:0}
+.output{background:#0b0b0b;border:1px solid #303030;border-radius:9px;padding:14px;margin-top:12px}.pill{display:inline-block;border:1px solid #3a3a3a;border-radius:20px;padding:5px 9px;font-size:11px;margin:3px 3px 3px 0}.good{background:#eee;color:#090909;border-color:#eee}.muted{color:var(--muted)}
+table{width:100%;border-collapse:collapse;font-size:12px}td,th{border-bottom:1px solid #292929;padding:10px 7px;text-align:left;vertical-align:top}th{color:var(--muted);font-weight:500}
+.hidden{display:none}.danger{border-color:#704040}.small{font-size:11px}.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
+@media(max-width:760px){.grid{grid-template-columns:1fr}.full{grid-column:auto}.row{grid-template-columns:1fr}.checks{grid-template-columns:1fr}.top{align-items:flex-start;flex-direction:column}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header class="top"><div><div class="kicker">IBRA METHOD BY RUSLAN IBRAGIMOV</div><h1>CLIENT SYSTEM <span class="muted">v2.1</span></h1></div><div class="badge">INTAKE → ASSESSMENT → PROGRAM</div></header><div class="sub" style="margin-bottom:14px">v2.1 · профиль → оценка → решение → программа → дозировка → реакция → адаптация → review</div>
+<nav>
+<button id="clientBtn" class="primary" onclick="mode('client')">КЛИЕНТ</button><button id="coachBtn" onclick="mode('coach')">ТРЕНЕР</button>
+<button onclick="save()">СОХРАНИТЬ КЛИЕНТА</button><button onclick="load()">ЗАГРУЗИТЬ</button><button onclick="clearAll()">СБРОСИТЬ</button>
+</nav>
+
+<section id="clientMode">
+<div class="grid">
+<div class="card full"><h2>1. Данные клиента</h2>
+<div class="row"><div><label>Имя</label><input id="firstName" placeholder="Имя"></div><div><label>Фамилия</label><input id="lastName" placeholder="Фамилия"></div></div>
+<div class="row"><div><label>Телефон</label><input id="phone" placeholder="+998 ..."></div><div><label>Возраст</label><input id="age" type="number"></div></div>
+<div class="row"><div><label>Вес, кг</label><input id="weight" type="number" step=".1"></div><div><label>Рост, см</label><input id="height" type="number"></div></div>
+<div class="row">
+<div><label>Уровень подготовленности</label><select id="selfLevel">
+<option value="beginner">Начинающий</option><option value="intermediate">Средний</option><option value="advanced">Продвинутый</option><option value="unknown">Не знаю</option>
+</select></div>
+<div><label>Стаж тренировок</label><select id="experience">
+<option>Никогда не тренировался</option><option>До 6 месяцев</option><option>6–12 месяцев</option><option>1–3 года</option><option>3+ года</option><option>Возвращаюсь после перерыва</option>
+</select></div>
+</div>
+</div>
+
+<div class="card"><h2>2. Объёмы тела</h2><p class="sub">Измерения сохраняются вместе с датой и нужны для отслеживания прогресса.</p>
+<div class="row"><div><label>Рука, см</label><input id="arm" type="number" step=".1"></div><div><label>Нога / бедро, см</label><input id="thigh" type="number" step=".1"></div>
+<div><label>Талия, см</label><input id="waist" type="number" step=".1"></div><div><label>Грудная клетка, см</label><input id="chest" type="number" step=".1"></div>
+<div><label>Бёдра, см</label><input id="hips" type="number" step=".1"></div><div><label>Доп. объём</label><input id="extraMeasure" placeholder="Название / значение"></div></div>
+<label>Дата измерения</label><input id="measureDate" type="date">
+</div>
+
+<div class="card"><h2>3. Формат занятий</h2>
+<label>Тип</label><div class="checks">
+<label class="check"><input class="format" type="checkbox" value="Персональные">Персональные</label>
+<label class="check"><input class="format" type="checkbox" value="Групповые">Групповые</label>
+<label class="check"><input class="format" type="checkbox" value="Онлайн">Онлайн</label>
+<label class="check"><input class="format" type="checkbox" value="По программе">По программе</label>
+<label class="check"><input class="format" type="checkbox" value="Смешанный">Смешанный</label></div>
+<label>Где заниматься</label><select id="place"><option>Тренажёрный зал</option><option>Дом</option><option>Улица / парк</option><option>Онлайн</option><option>Смешанный</option></select>
+</div>
+
+<div class="card full"><h2>4. Задача</h2>
+<div class="row"><div><label>Главная задача</label><select id="goal"><option value="fat">Снижение веса / жира</option><option value="muscle">Мышечная масса</option><option value="strength">Сила</option><option value="endurance">Выносливость</option><option value="speed">Скорость / мощность</option><option value="mobility">Подвижность</option><option value="general">Общая физическая подготовка</option><option value="body">Форма тела</option><option value="specific">Конкретная спортивная цель</option></select></div>
+<div><label>Дополнительная задача</label><input id="secondaryGoal" placeholder="Например: 10 подтягиваний / 10 км"></div></div>
+<label>Комментарий клиента</label><textarea id="goalText" placeholder="Что хотите получить от тренировок?"></textarea>
+</div>
+
+<div class="card full"><h2>5. База физической оценки</h2><p class="sub">Минимальный набор, который можно выполнить дома.</p>
+<div class="row3">
+<div><label>Отжимания, повторы</label><input id="push" type="number"></div>
+<div><label>Приседания за 60 сек</label><input id="squat" type="number"></div>
+<div><label>Планка, сек</label><input id="plank" type="number"></div>
+<div><label>Подтягивания, повторы</label><input id="pullup" type="number"></div>
+<div><label>Брусья, повторы</label><input id="dip" type="number"></div>
+</div></div>
+
+<div class="card full" id="gymBlock"><h2>6. Силовая база · тренажёрный зал</h2><p class="sub">Только для клиентов, которые используют зал. Сохраняем вес и количество повторений.</p>
+<div class="row3">
+<div><label>Жим штанги, кг</label><input id="benchKg" type="number"><label>Повторы</label><input id="benchReps" type="number"></div>
+<div><label>Присед со штангой, кг</label><input id="barSquatKg" type="number"><label>Повторы</label><input id="barSquatReps" type="number"></div>
+<div><label>Становая, кг</label><input id="deadKg" type="number"><label>Повторы</label><input id="deadReps" type="number"></div>
+</div></div>
+
+<div class="card full"><h2>7. Кардио · 5 минут</h2>
+<div class="row"><div><label>RowErg, метров</label><input id="row5" type="number"></div><div><label>SkiErg, метров</label><input id="ski5" type="number"></div>
+<div><label>Air Bike, результат</label><input id="bike5" type="number" step=".1"></div><div><label>Бег, метров</label><input id="run5" type="number"></div></div></div>
+
+<div class="card full"><h2>8. Ограничения</h2><textarea id="limits" placeholder="Что тренеру важно учитывать"></textarea>
+<label>Оборудование</label><div class="checks">
+<label class="check"><input class="equipment" type="checkbox" value="body">Вес тела</label><label class="check"><input class="equipment" type="checkbox" value="db">Гантели</label>
+<label class="check"><input class="equipment" type="checkbox" value="kb">Гири</label><label class="check"><input class="equipment" type="checkbox" value="bar">Штанга</label>
+<label class="check"><input class="equipment" type="checkbox" value="bench">Скамья</label><label class="check"><input class="equipment" type="checkbox" value="pull">Турник / брусья</label>
+<label class="check"><input class="equipment" type="checkbox" value="bands">Резинки</label><label class="check"><input class="equipment" type="checkbox" value="row">RowErg</label>
+<label class="check"><input class="equipment" type="checkbox" value="ski">SkiErg</label><label class="check"><input class="equipment" type="checkbox" value="bike">Air Bike</label>
+<label class="check"><input class="equipment" type="checkbox" value="run">Беговая дорожка</label></div>
+<div class="actions"><button class="primary" onclick="buildClient()">СОЗДАТЬ ПРОФИЛЬ И ПРОГРАММУ</button></div></div>
+
+
+<div class="card full">
+<h2>9. Результат оценки</h2>
+<p class="sub">Система не ставит диагнозов. Она собирает тренировочный профиль из доступных тестов и показывает, где сейчас сильные стороны, где есть запас для развития и что требует внимания.</p>
+<div class="actions"><button onclick="analyzeAssessment()">АНАЛИЗИРОВАТЬ ОЦЕНКУ</button></div>
+<div id="assessmentResult" class="output muted">После заполнения тестов здесь появится тренировочный профиль.</div>
+
+ <div class="card full">
+   <h2>9A. Приоритет IBRA</h2>
+   <p class="muted">Цель + результаты оценки → порядок развития. Без попытки превратить человека в Excel-таблицу, хотя Excel, конечно, очень старается.</p>
+   <div class="actions"><button onclick="ibraPriorityEngine()">ОПРЕДЕЛИТЬ ПРИОРИТЕТ</button></div>
+   <div id="priorityResult" class="output muted">После анализа оценки здесь появится приоритет.</div>
+ </div>
+</div>
+<div class="card full"><h2>10. Моя программа</h2><div id="clientResult" class="output muted">Заполните анкету и оценку.</div><
+ <div class="card full"><h2>10B. IBRA EXERCISE DECISION ENGINE</h2><p class="muted">Задача → упражнение → оборудование → альтернатива.</p><div class="actions"><button onclick="ibraExerciseDecisionEngine()">ВЫБРАТЬ УПРАЖНЕНИЯ</button></div><div id="exerciseEngineResult" class="output muted">После профиля здесь появятся конкретные упражнения.</div></div><div class="card full"><h2>10C. IBRA DOSE ENGINE 2.0</h2><p class="muted">Упражнение недостаточно выбрать. Нужно определить дозу и заранее знать, как она будет изменяться по реакции клиента.</p><div class="actions"><button onclick="ibraDoseEngine()">РАССЧИТАТЬ ДОЗИРОВКУ</button></div><div id="doseEngineResult" class="output muted">После выбора приоритета здесь появится стартовая дозировка и правила адаптации.</div></div><div class="card full"><h2>10D. IBRA TEST MODE</h2>
+<p class="muted">Друзья и тестировщики могут заполнить систему на своём устройстве. Данные не отправляются автоматически. Экспорт создаёт файл, который они могут прислать тебе.</p>
+<div class="actions">
+<button onclick="exportIBRATest()">ЭКСПОРТИРОВАТЬ МОЙ ТЕСТ</button>
+<label class="button" style="display:inline-block;cursor:pointer">ИМПОРТИРОВАТЬ ТЕСТ <input type="file" accept=".json,application/json" onchange="importIBRATest(this)" style="display:none"></label>
+<button onclick="copyIBRASummary()">СКОПИРОВАТЬ КРАТКИЙ ОТЧЁТ</button>
+</div>
+<div id="exportResult" class="output muted">Экспорт или импорт появится здесь.</div></div><div class="card full">
+   <h2>10A. IBRA PROGRAM ENGINE</h2>
+   <p class="muted">Цель + профиль + приоритет + частота + длительность + оборудование → стартовая неделя.</p>
+   <div class="actions"><button onclick="ibraProgramEngine()">СОБРАТЬ СТАРТОВУЮ НЕДЕЛЮ</button></div>
+   <div id="programEngineResult" class="output muted">После определения приоритета здесь появится структура недели.</div>
+ </div>
+/div>
+</div></section>
+<section id="coachMode" class="hidden">
+<div class="grid">
+<div class="card full"><h2>Тренерский слой</h2><p class="sub">Один профиль, одна логика. Клиент видит простую версию, тренер видит данные и решения.</p><div id="coachOut" class="output muted">Сначала собери программу в режиме клиента.</div></div>
+<div class="card full"><h2>История</h2><table><thead><tr><th>Дата</th><th>Клиент</th><th>Цель</th><th>Приоритет</th><th>Решение</th></tr></thead><tbody id="history"></tbody></table></div>
+</div>
+</section>
+</div>
+<script>
+function vals(c){return [...document.querySelectorAll('.'+c+':checked')].map(x=>x.value)}
+
+function scoreTest(id, low, high){
+ const el=$(id), raw=el ? el.value : '';
+ if(raw==='' || raw===null) return {status:'NOT TESTED', value:null, score:null};
+ const n=Number(raw);
+ if(!Number.isFinite(n) || n<0) return {status:'NOT TESTED', value:null, score:null};
+ return {status:n>=high?'READY':n>=low?'DEVELOP':'LIMIT', value:n, score:n>=high?2:n>=low?1:0};
+}
+function componentStatus(items){
+ const tested=items.filter(x=>x.status!=='NOT TESTED');
+ if(!tested.length) return 'NOT TESTED';
+ const avg=tested.reduce((s,x)=>s+x.score,0)/tested.length;
+ return avg>=1.5?'READY':avg>=0.75?'DEVELOP':'LIMIT';
+}
+function analyzeAssessment(){
+ const tests=[
+  ['Отжимания','push',8,20,'СИЛА / жим'],
+  ['Приседания 60 сек','squat',15,30,'НОГИ / работоспособность'],
+  ['Планка','plank',30,60,'КОНТРОЛЬ'],
+  ['Подтягивания','pullup',2,8,'СИЛА / тяга'],
+  ['Брусья','dip',4,12,'СИЛА / жим']
+ ].map(x=>({name:x[0],id:x[1],...scoreTest(x[1],x[2],x[3]),component:x[4]}));
+
+ const tested=tests.filter(x=>x.status!=='NOT TESTED');
+ const statusCounts={READY:0,DEVELOP:0,LIMIT:0};
+ tested.forEach(x=>statusCounts[x.status]++);
+ const factual = !tested.length ? 'Нет данных' :
+   tested.length<3 ? 'Предварительный профиль' :
+   statusCounts.READY>=3 ? 'Продвинутый' :
+   (statusCounts.READY+statusCounts.DEVELOP>=3 ? 'Средний' : 'Начинающий');
+
+ const strengthItems=tests.filter(x=>x.name==='Отжимания'||x.name==='Подтягивания'||x.name==='Брусья');
+ const controlItems=tests.filter(x=>x.name==='Планка');
+ const lowerItems=tests.filter(x=>x.name==='Приседания 60 сек');
+ const components=[
+  ['СИЛА',componentStatus(strengthItems)],
+  ['НОГИ / РАБОТОСПОСОБНОСТЬ',componentStatus(lowerItems)],
+  ['КОНТРОЛЬ',componentStatus(controlItems)]
+ ];
+
+ const strong=tests.filter(x=>x.status==='READY').map(x=>x.name);
+ const develop=tests.filter(x=>x.status==='DEVELOP').map(x=>x.name);
+ const limited=tests.filter(x=>x.status==='LIMIT').map(x=>x.name);
+
+ const gym=$('place').value==='Тренажёрный зал';
+ const gymData=[
+  ['Жим',$('benchKg').value,$('benchReps').value],
+  ['Присед',$('barSquatKg').value,$('barSquatReps').value],
+  ['Становая',$('deadKg').value,$('deadReps').value]
+ ].filter(x=>x[1]!==''&&x[2]!=='');
+ const cardio=[
+  ['RowErg',$('row5').value],['SkiErg',$('ski5').value],['Air Bike',$('bike5').value],['Бег',$('run5').value]
+ ].filter(x=>x[1]!=='');
+
+ $('assessmentResult').innerHTML=`
+ <span class="pill good">IBRA PROFILE</span>
+ <h3>Ориентировочный уровень: ${factual}</h3>
+ <div class="grid2">
+   <div><b>Профиль компонентов</b><ul>${components.map(x=>`<li>${x[0]}: <b>${x[1]}</b></li>`).join('')}</ul></div>
+   <div><b>Результаты тестов</b><ul>${tests.map(x=>`<li>${x.name}: ${x.status==='NOT TESTED'?'не тестировался':x.value+' · '+x.status}</li>`).join('')}</ul></div>
+ </div>
+ <p><b>Сильные стороны:</b> ${strong.join(', ')||'не определены'}</p>
+ <p><b>Зона развития:</b> ${develop.join(', ')||'не определена'}</p>
+ <p><b>Требует внимания:</b> ${limited.join(', ')||'не определено'}</p>
+ <p><b>Данные:</b> ${tested.length}/5 тестов · профиль строится по направлениям, а не по одному суммарному баллу.</p>
+ ${gym?`<p><b>Силовая база зала:</b> ${gymData.map(x=>x[0]+': '+x[1]+' кг × '+x[2]).join(' · ')||'данные не внесены'}</p>`:'<p><b>Силовая база зала:</b> не применяется</p>'}
+ <p><b>Кардио 5 мин:</b> ${cardio.map(x=>x[0]+': '+x[1]).join(' · ')||'данные не внесены'}</p>
+ <p class="small">Статусы READY / DEVELOP / LIMIT и пороги здесь являются рабочей эвристикой прототипа, а не медицинской или нормативной классификацией. Для реального IBRA их нужно валидировать на реальных клиентах с учётом возраста, пола, массы тела, техники и условий теста.</p>`;
+ window.ibraAssessment={version:'2.4',factual,tests,components,strong,develop,limited,gymData,cardio};
+}
+function statusTests(){let s=+$('squat').value||0,p=+$('push').value||0,c=$('cardio').value,k=$('plank').value;
+return {squat:s>=25?'READY':s>=12?'DEVELOP':'LIMIT',push:p>=15?'READY':p>=6?'DEVELOP':'LIMIT',cardio:c==='good'?'READY':c==='mid'?'DEVELOP':'LIMIT',control:k==='good'?'READY':k==='mid'?'DEVELOP':'LIMIT'}}
+function priority(t,g){let gap=Object.entries(t).filter(x=>x[1]==='LIMIT').map(x=>x[0]);let map={fat:['cardio','squat'],muscle:['squat','push'],strength:['squat','push'],endurance:['cardio','control'],general:['control','cardio']};for(const x of map[g])if(gap.includes(x))return x;return gap[0]||map[g][0]}
+function exercise(task,eq){const has=x=>eq.includes(x);const M={
+squat:has('bar')?'Присед со штангой':has('kb')?'Goblet-присед':has('db')?'Присед с гантелью':'Присед с весом тела',
+hinge:has('kb')?'Тяга гири':has('db')?'Румынская тяга с гантелями':has('bar')?'Румынская тяга со штангой':'Ягодичный мост',
+push:has('bench')&&has('db')?'Жим гантелей лёжа':has('db')?'Жим гантелей стоя':'Отжимания',
+pull:has('pull')?'Подтягивания / тяга собственного веса':has('bands')?'Тяга резинки':'Тяга гантели',
+carry:has('kb')?'Фермерская прогулка с гирями':has('db')?'Фермерская прогулка с гантелями':'Переноска / ходьба',
+cardio:has('row')?'RowErg':has('bike')?'Air Bike':has('ski')?'SkiErg':has('run')?'Беговая дорожка':'Ходьба / бег',
+control:has('bands')?'Pallof / анти-ротация с резинкой':'Планка + dead bug'};
+return M[task]||M.squat}
+
+function ibraPriorityEngine(){
+ const goal=$('goal').value;
+ if(!window.ibraAssessment) analyzeAssessment();
+ const a=window.ibraAssessment||{};
+ const limits=(a.limited||[]).map(s=>s.toLowerCase());
+
+ let primary='', secondary='', support='';
+ if(goal==='fat'){
+   primary='Работоспособность и общий объём движения';
+   secondary='Сила всего тела';
+   support='Контроль движения';
+ } else if(goal==='muscle'){
+   primary='Мышечное развитие';
+   secondary='Сила';
+   support='Работоспособность';
+ } else if(goal==='strength'){
+   primary='Сила';
+   secondary='Контроль техники';
+   support='Работоспособность';
+ } else if(goal==='endurance'){
+   primary='Выносливость';
+   secondary='Сила';
+   support='Контроль движения';
+ } else {
+   primary='Общая физическая подготовленность';
+   secondary='Сила';
+   support='Выносливость';
+ }
+
+ if(limits.some(s=>s.includes('планк'))) secondary='Контроль движения';
+ if(limits.some(s=>s.includes('подтяг')||s.includes('отжим')||s.includes('брусь')) && goal!=='strength')
+   support='Сила верхней части тела';
+ if(limits.some(s=>s.includes('присед')) && goal!=='fat')
+   secondary='Сила и работоспособность ног';
+
+ const confidence=(a.tests||[]).filter(t=>t.status!=='NOT TESTED').length;
+ const note=confidence<3
+   ? 'Мало тестовых данных. Приоритет предварительный.'
+   : 'Приоритет построен на цели и доступных результатах оценки.';
+
+ const box=$('priorityResult');
+ if(box) box.innerHTML=`
+   <span class="pill good">IBRA PRIORITY</span>
+   <h3>Что сейчас развиваем в первую очередь</h3>
+   <p><b>PRIMARY:</b> ${primary}</p>
+   <p><b>SECONDARY:</b> ${secondary}</p>
+   <p><b>SUPPORT:</b> ${support}</p>
+   <p class="small">${note}</p>`;
+ window.ibraPriority={primary,secondary,support,confidence};
+ return window.ibraPriority;
+}
+
+
+
+
+
+function ibraTestReport(){
+ const a=window.ibraAssessment||{};
+ const p=window.ibraPriority||{};
+ const d=window.ibraDose||{};
+ const e=window.ibraExerciseSelection||{};
+ const profile={
+  createdAt:new Date().toISOString(),
+  personal:{
+   name:$('name')?.value||'',
+   level:$('level')?.value||'',
+   experience:$('experience')?.value||'',
+   age:$('age')?.value||'',
+   weight:$('weight')?.value||'',
+   height:$('height')?.value||''
+  },
+  goal:$('goal')?.value||'',
+  place:$('place')?.value||'',
+  days:$('days')?.value||'',
+  duration:$('duration')?.value||'',
+  equipment:vals('equipment'),
+  measurements:{
+   arm:$('arm')?.value||'', thigh:$('thigh')?.value||'', waist:$('waist')?.value||'',
+   chest:$('chest')?.value||'', hips:$('hips')?.value||'', extra:$('extra')?.value||''
+  },
+  assessment:a,
+  priority:p,
+  dose:d,
+  exercises:e,
+  generatedProgram:window.ibraProgramEngineData||null
+ };
+ return profile;
+}
+function exportIBRATest(){
+ analyzeAssessment();
+ ibraPriorityEngine();
+ ibraExerciseDecisionEngine();
+ ibraDoseEngine();
+ const data=ibraTestReport();
+ const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
+ const url=URL.createObjectURL(blob);
+ const a=document.createElement('a');
+ const id='IBRA_TEST_'+new Date().toISOString().slice(0,10).replace(/-/g,'')+'_'+Math.random().toString(36).slice(2,7).toUpperCase()+'.json';
+ a.href=url;a.download=id;a.click();URL.revokeObjectURL(url);
+ const out=$('exportResult');
+ if(out) out.innerHTML='<span class="pill good">ГОТОВО</span><p>Файл <b>'+id+'</b> создан. Отправь его тренеру.</p>';
+}
+function importIBRATest(input){
+ const file=input.files&&input.files[0]; if(!file)return;
+ const reader=new FileReader();
+ reader.onload=()=>{
+  try{
+   const x=JSON.parse(reader.result);
+   const set=(id,v)=>{const el=$(id);if(el&&v!==undefined)el.value=v};
+   set('name',x.personal?.name);set('level',x.personal?.level);set('experience',x.personal?.experience);
+   set('age',x.personal?.age);set('weight',x.personal?.weight);set('height',x.personal?.height);
+   set('goal',x.goal);set('place',x.place);set('days',x.days);set('duration',x.duration);
+   const m=x.measurements||{};Object.keys(m).forEach(k=>set(k,m[k]));
+   const a=x.assessment||{};
+   (a.tests||[]).forEach(t=>set(t.id,t.value));
+   const g=a.gymData||[];
+   const map={Жим:['benchKg','benchReps'],Присед:['barSquatKg','barSquatReps'],Становая:['deadKg','deadReps']};
+   g.forEach(r=>{if(map[r[0]]){set(map[r[0]][0],r[1]);set(map[r[0]][1],r[2]);}});
+   analyzeAssessment();ibraPriorityEngine();ibraExerciseDecisionEngine();ibraDoseEngine();
+   const out=$('exportResult');if(out)out.innerHTML='<span class="pill good">ИМПОРТ ГОТОВ</span><p>Профиль загружен в Coach Mode. Проверь данные перед использованием.</p>';
+  }catch(err){alert('Не удалось прочитать файл IBRA: '+err.message);}
+ };
+ reader.readAsText(file);
+}
+function copyIBRASummary(){
+ analyzeAssessment();ibraPriorityEngine();ibraExerciseDecisionEngine();ibraDoseEngine();
+ const x=ibraTestReport(), a=x.assessment||{};
+ const text=`IBRA TEST\nИмя: ${x.personal.name}\nЦель: ${x.goal}\nУровень: ${x.personal.level}\nСтаж: ${x.personal.experience}\nВес: ${x.personal.weight} кг · Рост: ${x.personal.height} см\n\nТЕСТЫ\n${(a.tests||[]).map(t=>t.name+': '+(t.value??'не тестировался')+' ['+t.status+']').join('\n')}\n\nПРИОРИТЕТ\nPRIMARY: ${x.priority.primary||''}\nSECONDARY: ${x.priority.secondary||''}\nSUPPORT: ${x.priority.support||''}`;
+ navigator.clipboard?.writeText(text);
+ const out=$('exportResult');if(out)out.innerHTML='<span class="pill good">СКОПИРОВАНО</span><p>Краткий отчёт скопирован в буфер обмена.</p>';
+}
+
+function ibraDoseEngine(){
+ const level=$('level')?.value||'Начинающий';
+ const goal=$('goal').value;
+ const days=Math.max(2,Math.min(5,Number($('days').value)||3));
+ const duration=Number($('duration').value)||60;
+ const pri=window.ibraPriority||ibraPriorityEngine();
+ const intensity=level==='Продвинутый'?'RPE 7–8':level==='Средний'?'RPE 6–7':'RPE 5–6';
+ const main=level==='Продвинутый'?'3–4 × 5–10':level==='Средний'?'3 × 6–12':'2–3 × 6–10';
+ const rest=goal==='strength'?'2–3 мин':goal==='muscle'?'60–120 сек':'60–90 сек';
+ const cond=goal==='endurance'?'15–25 мин умеренно или 6–10 интервалов':'8–15 мин умеренно';
+ const progression=level==='Начинающий'
+   ?'Сначала качество и переносимость → затем объём → затем интенсивность.'
+   :'Стабильная техника + хорошее восстановление → увеличить только один параметр на 5–10%.';
+ const responseRules=[
+  ['Хорошая техника + нормальное восстановление','PROGRESS','+5–10% одного параметра'],
+  ['Техника нормальная, но тяжело восстанавливаться','HOLD','оставить дозу'],
+  ['RPE 9–10 или техника ухудшается','REDUCE','−15–25% объёма или проще вариант'],
+  ['Боль / необычные симптомы','STOP','прекратить упражнение и оценить ситуацию']
+ ];
+ const out=$('doseEngineResult');
+ if(out) out.innerHTML='<span class="pill good">IBRA DOSE ENGINE 2.0</span><h3>Стартовая дозировка</h3>'+
+ '<p><b>Приоритет:</b> '+(pri.primary||'определяется')+' → '+(pri.secondary||'')+'</p>'+
+ '<table><thead><tr><th>Параметр</th><th>Старт</th></tr></thead><tbody>'+
+ '<tr><td>Основная работа</td><td>'+main+'</td></tr>'+
+ '<tr><td>Интенсивность</td><td>'+intensity+'</td></tr>'+
+ '<tr><td>Отдых</td><td>'+rest+'</td></tr>'+
+ '<tr><td>Кондиционная работа</td><td>'+cond+'</td></tr>'+
+ '<tr><td>Частота</td><td>'+days+' трен./нед. · '+duration+' мин</td></tr>'+
+ '</tbody></table><p><b>Правило прогрессии:</b> '+progression+'</p>'+
+ '<h4>Реакция → решение</h4><table><thead><tr><th>Реакция</th><th>Решение</th><th>Действие</th></tr></thead><tbody>'+
+ responseRules.map(r=>'<tr><td>'+r[0]+'</td><td><b>'+r[1]+'</b></td><td>'+r[2]+'</td></tr>').join('')+
+ '</tbody></table><p class="small">Дозировка является стартовой настройкой. Она не заменяет решение тренера и должна корректироваться по фактической реакции клиента.</p>';
+ window.ibraDose={version:'2.0',level,goal,days,duration,priority:pri,main,intensity,rest,cond,progression,responseRules};
+ return window.ibraDose;
+}
+
+function ibraExerciseDecisionEngine(){
+ const level=$('level')?.value||'Начинающий', eq=vals('equipment');
+ const has=x=>eq.includes(x);
+ const pick=(arr)=>arr.find(x=>x[1])||['Вариант без оборудования','вес тела'];
+ const data=[
+  ['SQUAT','Сила ног / базовое движение',pick([['Goblet squat',has('kettlebell')||has('dumbbells')],['Присед на опору',true],['Присед со штангой',has('barbell')]])],
+  ['HINGE','Задняя цепь / сила',pick([['KB deadlift',has('kettlebell')],['DB Romanian deadlift',has('dumbbells')],['Barbell deadlift',has('barbell')],['Hip hinge',true]])],
+  ['PUSH','Жим / верх тела',pick([['Отжимания от опоры',true],['Отжимания',true],['Жим гантелей лёжа',has('dumbbells')],['Жим штанги лёжа',has('barbell')]])],
+  ['PULL','Тяга / верх тела',pick([['Тяга резинки',has('bands')],['Тяга гантели',has('dumbbells')],['Подтягивания',has('pullup')]])],
+  ['CARRY','Корпус / перенос силы',pick([['Farmer carry',has('kettlebell')||has('dumbbells')],['Suitcase carry',has('kettlebell')||has('dumbbells')],['March in place',true]])],
+  ['CONDITIONING','Выносливость',pick([['RowErg',has('rower')],['SkiErg',has('skierg')],['Air Bike',has('airbike')],['Бег / ходьба',has('treadmill')||has('outdoor')],['Интервалы без оборудования',true]])],
+  ['CONTROL','Устойчивость / контроль',pick([['Dead bug',true],['Планка',true],['Pallof press',has('bands')],['Step-down',true]])]
+ ];
+ const selected=data.map(x=>({task:x[0],goal:x[1],exercise:x[2][0],equipment:x[2][1]}));
+ const out=$('exerciseEngineResult');
+ if(out) out.innerHTML='<span class="pill good">IBRA EXERCISE DECISION ENGINE</span><h3>TASK → EXERCISE</h3><p class="small">Сначала задача, потом инструмент. Если упражнение не подходит, задача сохраняется, а упражнение меняется.</p><table><thead><tr><th>Задача</th><th>Что развиваем</th><th>Упражнение</th><th>Инструмент</th></tr></thead><tbody>'+selected.map(x=>'<tr><td><b>'+x.task+'</b></td><td>'+x.goal+'</td><td>'+x.exercise+'</td><td>'+x.equipment+'</td></tr>').join('')+'</tbody></table>';
+ window.ibraExerciseSelection={level,selected}; return window.ibraExerciseSelection;
+}
+
+function ibraProgramEngine(){
+ if(!window.ibraAssessment) analyzeAssessment();
+ if(!window.ibraPriority) ibraPriorityEngine();
+ if(!window.ibraExerciseSelection) ibraExerciseDecisionEngine();
+ if(!window.ibraDose) ibraDoseEngine();
+ const goal=$('goal').value;
+ const days=Math.max(2,Math.min(5,Number($('days').value)||3));
+ const duration=Number($('duration').value)||60;
+ const eq=vals('equipment');
+ const pri=window.ibraPriority || ibraPriorityEngine();
+ const equipment=eq.length?eq:['bodyweight'];
+
+ const templates={
+   fat:[
+    ['СИЛА + РАБОТОСПОСОБНОСТЬ','Сила всего тела','6–8 мин','20–25 мин','8–12 мин','5 мин'],
+    ['КАРДИО + КОНТРОЛЬ','Выносливость','6–8 мин','12–15 мин','18–22 мин','5 min'],
+    ['FULL BODY','Сила + движение','6–8 мин','20–25 мин','8–12 мин','5 мин'],
+    ['КОНДИЦИЯ','Работоспособность','6–8 мин','10–15 мин','20–25 мин','5 мин'],
+    ['FULL BODY','Сила + работоспособность','6–8 мин','20–25 мин','10–15 мин','5 мин']
+   ],
+   muscle:[
+    ['FULL BODY A','Мышечное развитие','8–10 мин','28–32 мин','6–8 мин','5 мин'],
+    ['FULL BODY B','Мышечное развитие','8–10 мин','28–32 мин','6–8 мин','5 мин'],
+    ['FULL BODY C','Мышечное развитие','8–10 мин','25–30 мин','8–10 мин','5 мин'],
+    ['СИЛА + МЫШЦЫ','Сила + мышечное развитие','8–10 мин','28–32 мин','6–8 мин','5 мин'],
+    ['FULL BODY','Мышечное развитие','8–10 мин','25–30 мин','8–10 мин','5 мин']
+   ],
+   strength:[
+    ['СИЛА A','Основные силовые движения','8–10 мин','28–32 мин','5–8 мин','5 мин'],
+    ['СИЛА B','Сила + техника','8–10 мин','28–32 мин','5–8 мин','5 мин'],
+    ['СИЛА C','Сила + контроль','8–10 мин','25–30 мин','6–8 мин','5 мин'],
+    ['СИЛА A','Основные силовые движения','8–10 мин','28–32 мин','5–8 мин','5 мин'],
+    ['FULL BODY','Сила + перенос в движение','8–10 мин','25–30 мин','8–10 мин','5 мин']
+   ],
+   endurance:[
+    ['ENGINE A','Аэробная выносливость','6–8 мин','12–15 мин','20–25 мин','5 мин'],
+    ['INTERVALS','Интервальная работа','8–10 мин','10–12 мин','22–28 мин','5 мин'],
+    ['ENGINE B','Выносливость + сила','6–8 мин','18–20 мин','18–22 мин','5 мин'],
+    ['ENGINE C','Работоспособность','6–8 мин','12–15 мин','22–28 мин','5 мин'],
+    ['FULL BODY ENGINE','Выносливость + сила','8–10 мин','18–20 мин','18–22 мин','5 мин']
+   ],
+   general:[
+    ['FULL BODY A','Общая физическая подготовка','8–10 мин','20–25 мин','10–15 мин','5 мин'],
+    ['ENGINE','Выносливость','6–8 мин','15–18 мин','18–22 мин','5 мин'],
+    ['FULL BODY B','Сила + контроль','8–10 мин','22–27 мин','10–12 мин','5 мин'],
+    ['POWER + ENGINE','Мощность + работоспособность','8–10 мин','18–22 мин','15–20 мин','5 мин'],
+    ['FULL BODY C','Интеграция','8–10 мин','20–25 мин','10–15 мин','5 мин']
+   ]
+ };
+ const key=goal==='fat'?'fat':goal==='muscle'?'muscle':goal==='strength'?'strength':goal==='endurance'?'endurance':'general';
+ const pool=templates[key];
+ const names=pool.slice(0,days);
+ const exerciseMap={
+  'СИЛА + РАБОТОСПОСОБНОСТЬ':['Присед / goblet squat','Тяга / hinge','Жим / отжимания','Carry','Короткий кондиционный блок'],
+  'КАРДИО + КОНТРОЛЬ':['Row / Ski / Bike / бег','Планка + dead bug','Step-up / split squat','Лёгкий carry','Дыхательное восстановление'],
+  'FULL BODY':['Присед','Hinge','Жим','Тяга','Carry / locomotion'],
+  'КОНДИЦИЯ':['Интервалы на доступном кардио','Step-up / squat','Carry','Контроль корпуса'],
+  'FULL BODY A':['Присед','Жим','Тяга','Hinge','Carry'],
+  'FULL BODY B':['Hinge','Жим','Присед / split squat','Тяга','Core'],
+  'FULL BODY C':['Split squat','Жим','Тяга','Hinge','Carry'],
+  'СИЛА + МЫШЦЫ':['Основное силовое движение','Жим','Тяга','Hinge','Дополнительная работа'],
+  'СИЛА A':['Основное движение','Второе базовое движение','Жим','Тяга','Carry'],
+  'СИЛА B':['Hinge','Жим','Присед','Тяга','Core'],
+  'СИЛА C':['Присед / split squat','Жим','Тяга','Hinge','Control'],
+  'ENGINE A':['Row / Ski / Bike / бег','Лёгкая силовая база','Мобилизация'],
+  'INTERVALS':['Кардио интервалы','Присед / step-up','Core'],
+  'ENGINE B':['Кардио','Hinge','Жим / тяга','Carry'],
+  'ENGINE C':['Кардио интервалы','Лёгкая силовая работа','Control'],
+  'FULL BODY ENGINE':['Кардио','Присед','Жим','Тяга','Carry'],
+  'ENGINE':['Кардио','Лёгкая силовая работа','Control'],
+  'POWER + ENGINE':['Медбол / прыжок по уровню','Силовое движение','Кардио'],
+  'FULL BODY C':['Присед','Hinge','Жим','Тяга','Carry']
+ };
+ const level=$('level')?.value||'Начинающий';
+ const intensity=level==='Продвинутый'?'RPE 7–8':level==='Средний'?'RPE 6–7':'RPE 5–7';
+ const dose=level==='Продвинутый'?'3–4 подхода × 5–10 повторов':level==='Средний'?'2–4 подхода × 6–12 повторов':'2–3 подхода × 6–10 повторов';
+ const cardioDose=key==='endurance'?'умеренно: 15–25 мин или интервалы 30–90 сек':'6–12 мин без отказа';
+
+ const rows=names.map((t,i)=>{
+   const ex=exerciseMap[t[0]]||exerciseMap['FULL BODY'];
+   return {day:i+1,focus:t[1],prep:t[2],main:t[3],conditioning:t[4],control:t[5],exercises:ex,dose,intensity,cardioDose};
+ });
+ const goalNames={fat:'Снижение жира',muscle:'Мышечное развитие',strength:'Сила',endurance:'Выносливость',general:'Общая физическая подготовка'};
+ const priorityText=pri?`${pri.primary} → ${pri.secondary} → ${pri.support}`:'определяется после оценки';
+ const htmlRows=rows.map(r=>`
+   <tr>
+    <td><b>День ${r.day}</b><br>${r.focus}</td>
+    <td>${r.prep}</td>
+    <td>${r.exercises.slice(0,4).map(e=>e+'<br>').join('')}<span class="small">${r.dose}</span></td>
+    <td>${r.conditioning}<br><span class="small">${r.cardioDose}</span></td>
+    <td>${r.control}<br><span class="small">Техника без ухудшения</span></td>
+   </tr>`).join('');
+
+ const out=$('programEngineResult');
+ if(out) out.innerHTML=`
+   <span class="pill good">IBRA PROGRAM ENGINE</span>
+   <h3>Стартовая неделя: ${goalNames[key]}</h3>
+   <p><b>Приоритет:</b> ${priorityText}</p>
+   <p><b>Частота:</b> ${days} тренировки · <b>Длительность:</b> ${duration} мин · <b>Уровень:</b> ${level}</p>
+   <table><thead><tr><th>День / фокус</th><th>PREP</th><th>MAIN</th><th>CONDITIONING</th><th>CONTROL</th></tr></thead>
+   <tbody>${htmlRows}</tbody></table>
+   <p class="small">Это стартовый черновик. После первой недели программа должна изменяться по реакции клиента: техника, восстановление, субъективная тяжесть и необычные симптомы. Один основной параметр меняем за раз.</p>`;
+ window.ibraProgramEngineData={goal:key,days,duration,level,priority:pri,rows,equipment};
+ return window.ibraProgramEngineData;
+}
+
+function build(){
+if(!window.ibraAssessment) analyzeAssessment();
+ibraPriorityEngine();
+let t=statusTests(),g=$('goal').value,p=priority(t,g),eq=equipment(),d=+$('days').value;
+let goalName={fat:'Снижение жира / форма',muscle:'Набор мышц',strength:'Сила',endurance:'Выносливость',general:'Общая физическая готовность'}[g];
+let primary=p==='cardio'?'Выносливость':p==='control'?'Контроль движения':p==='push'?'Сила верхней части тела':'Сила и качество движения';
+let duration=$('duration').value;
+let sessions=[];
+for(let i=1;i<=d;i++){
+  let focus, task, main, cond;
+  if(g==='strength'){focus=i===1?'Сила ног':i===2?'Сила верхней части тела':i===3?'Сила + мощность': 'Общая сила'; task=i%2?'squat':'push'}
+  else if(g==='muscle'){focus=i===1?'Ноги':i===2?'Верх тела':i===3?'Full Body':'Full Body'; task=i%2?'squat':'push'}
+  else if(g==='endurance'){focus=i===1?'Аэробная база':i===2?'Интервальная работа':i===3?'Лёгкая выносливость':'Смешанная выносливость'; task='cardio'}
+  else if(g==='fat'){focus=i===1?'Сила + расход энергии':i===2?'Кардио':i===3?'Full Body + кондиция':'Смешанная работа'; task=i%3===0?'squat':i%2?'cardio':'hinge'}
+  else {focus=i===1?'Сила':i===2?'Выносливость':i===3?'Мощность + контроль':'Full Body'; task=i===2?'cardio':i===3?'control':i%2?'squat':'push'}
+  main=exercise(task,eq); cond=exercise('cardio',eq);
+  let dose=task==='cardio'?'12–20 мин умеренно':'3–4 × 6–12, RPE 6–8';
+  sessions.push(`
+  <div class="output">
+    <h3>День ${i} · ${focus}</h3>
+    <table>
+      <tr><th>Блок</th><th>Что делаем</th><th>Стартовая доза</th></tr>
+      <tr><td>PREP</td><td>Мобилизация + разогрев всего тела</td><td>5–8 мин</td></tr>
+      <tr><td>SKILL</td><td>Отработка техники главного движения</td><td>2–3 подхода легко</td></tr>
+      <tr><td>MAIN</td><td><b>${main}</b></td><td>${dose}</td></tr>
+      <tr><td>CONDITIONING</td><td>${cond}</td><td>${task==='cardio'?'в составе основной работы':'6–10 мин'}</td></tr>
+      <tr><td>CONTROL</td><td>Планка / dead bug / устойчивость</td><td>2–3 подхода</td></tr>
+    </table>
+    <p class="small muted">Контроль: техника важнее количества. При ухудшении техники нагрузку не повышаем.</p>
+  </div>`);
+}
+$('result').innerHTML=`
+<span class="pill good">СТАРТОВАЯ НЕДЕЛЯ ГОТОВА</span>
+<h3>${goalName}</h3>
+<p><b>Главный фокус:</b> ${primary}</p>
+<p><b>Профиль:</b> ${$('name').value||'Без имени'} · ${$('level').value} · ${d}×/нед · ${duration}</p>
+${sessions.join('')}
+<p class="small muted"><b>IBRA RULE:</b> одна главная задача на тренировку. Остальные блоки поддерживают её. TASK STAYS. TOOL CHANGES.</p>`;
+$('coachOut').innerHTML=`
+<b>CAPACITY:</b> ${Object.entries(t).map(([k,v])=>k+': '+v).join(' · ')}<br>
+<b>PRIORITY:</b> ${p}<br>
+<b>PROGRAM:</b> ${d} sessions · ${duration}<br>
+<b>DOSE:</b> стартовая, затем адаптация по RESPONSE<br>
+<b>CONSTRAINTS:</b> ${$('constraints').value||'не указаны'}<br>
+<b>EQUIPMENT:</b> ${eq.join(', ')||'вес тела'}<br>
+<b>ENGINE:</b> DATA → PRIORITY → TASK → EXERCISE → DOSE → WEEK → RESPONSE<br><br><b>COACH REVIEW:</b> цель совпадает с приоритетом · упражнение доступно · доза переносима · ограничения учтены · есть критерий прогрессии · есть критерий остановки`;
+saveHistory({priority:p,decision:'Стартовая неделя собрана'});
+}
+function adapt(){let r=+$('rpe').value,rec=$('recovery').value,tech=$('tech').value,pain=$('pain').value;let decision,detail;
+if(pain==='yes'){decision='СТОП ПРОГРЕССИИ';detail='Не увеличивать нагрузку. Разобраться с болью/необычными симптомами и при необходимости обратиться к специалисту.'}
+else if(rec==='bad'||tech==='bad'||r>=9){decision='СНИЗИТЬ';detail='Уменьшить объём примерно на 15–25% и/или выбрать более простую вариацию.'}
+else if(rec==='good'&&tech==='good'&&r<=7){decision='ПРОГРЕСС';detail='Изменить только один главный параметр: немного увеличить объём, нагрузку или сложность.'}
+else{decision='УДЕРЖАТЬ';detail='Сохранить текущую дозу ещё на цикл и оценить качество выполнения.'}
+$('adaptResult').innerHTML=`<span class="pill good">${decision}</span><p>${detail}</p><p class="small muted">Главное правило: одна основная перемена за раз.</p>`;
+saveHistory({priority:'после недели',decision});
+}
+function doseFor(goal, task, level){
+let beginner=level==='Начинающий';
+if(task==='cardio'){
+  return goal==='endurance'?{sets:1,reps:'15–25 мин',rest:'2–3 мин легко',intensity:'RPE 6–7'}:
+    {sets:1,reps:'10–18 мин',rest:'2–3 мин легко',intensity:'RPE 6–7'};
+}
+if(goal==='strength') return beginner?{sets:3,reps:'6–8',rest:'120–180 сек',intensity:'RPE 6–7'}:{sets:4,reps:'4–6',rest:'150–240 сек',intensity:'RPE 7–8'};
+if(goal==='muscle') return beginner?{sets:3,reps:'8–12',rest:'75–120 сек',intensity:'RPE 6–8'}:{sets:3,reps:'8–12',rest:'75–120 сек',intensity:'RPE 7–8'};
+if(goal==='fat') return {sets:3,reps:'8–12',rest:'60–90 сек',intensity:'RPE 6–8'};
+return {sets:3,reps:'6–10',rest:'75–120 сек',intensity:'RPE 6–8'};
+}
+function tasksFor(goal,days){
+let arr;
+if(goal==='strength') arr=['squat','push','hinge','pull','squat'];
+else if(goal==='muscle') arr=['squat','push','hinge','pull','squat'];
+else if(goal==='endurance') arr=['cardio','cardio','control','cardio','cardio'];
+else if(goal==='fat') arr=['squat','cardio','hinge','cardio','push'];
+else arr=['squat','cardio','push','control','hinge'];
+return arr.slice(0,days);
+}
+function buildFullProgram(){
+const g=$('goal').value, days=+$('days').value, level=$('level').value, eq=equipment();
+const taskArr=tasksFor(g,days);
+const names={squat:'Ноги / присед',hinge:'Задняя цепь / тяга',push:'Жим',pull:'Тяга',cardio:'Выносливость',control:'Контроль'};
+let rows=[];
+taskArr.forEach((task,i)=>{
+ const ex=exercise(task,eq), d=doseFor(g,task,level);
+ rows.push({day:i+1,focus:names[task],task,exercise:ex,dose:d});
+});
+window.ibraProgram={version:'2.0',profile:payload(),goal:g,days:rows};
+$('fullProgram').innerHTML=`
+<span class="pill good">ПРОГРАММА V2.0</span>
+<table><thead><tr><th>День</th><th>Фокус</th><th>Упражнение</th><th>Подходы</th><th>Повторы / время</th><th>Отдых</th><th>Интенсивность</th></tr></thead>
+<tbody>${rows.map(x=>`<tr><td>${x.day}</td><td>${x.focus}</td><td><b>${x.exercise}</b></td><td>${x.dose.sets}</td><td>${x.dose.reps}</td><td>${x.dose.rest}</td><td>${x.dose.intensity}</td></tr>`).join('')}</tbody></table>
+<p class="small muted"><b>Прогрессия:</b> сначала качество и переносимость → затем объём → затем нагрузка/сложность. Меняем один главный параметр за раз.</p>
+<p class="small muted"><b>Fatigue Gate:</b> плохое восстановление, нестабильная техника или необычные симптомы блокируют повышение нагрузки.</p>`;
+saveHistory({priority:'program builder',decision:'Полная программа v2.1'});
+}
+function exportProgram(){
+if(!window.ibraProgram) buildFullProgram();
+const blob=new Blob([JSON.stringify(window.ibraProgram,null,2)],{type:'application/json'});
+const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='IBRA_PROGRAM_v2_0.json';a.click();URL.revokeObjectURL(a.href);
+}
+function saveCycle(){
+const x={cycle:$('cycle').value,goal:$('cycleGoal').value,date:new Date().toLocaleString()};
+localStorage.setItem('ibra_v20_cycle',JSON.stringify(x));
+$('cycleResult').innerHTML=`<span class="pill good">СОХРАНЕНО</span><p>Цикл ${x.cycle}: ${x.goal||'цель не указана'}</p><p class="small muted">Следующий review должен сравнить исходную точку, реакцию и фактический прогресс.</p>`;
+}
+function chooseExercise(){
+const task=$('taskSelect').value, eq=equipment(), level=$('level').value, constraints=($('constraints').value||'').toLowerCase();
+const has=x=>eq.includes(x);
+let candidates=[];
+const add=(name,score,reason)=>candidates.push({name,score,reason});
+if(task==='squat'){
+ if(has('bar')) add('Присед со штангой',3,'доступна штанга; высокая нагрузка и масштабируемость');
+ if(has('kb')) add('Goblet-присед',3,'гиря удобна для обучения и контроля');
+ if(has('db')) add('Присед с гантелью',2,'доступны гантели');
+ add('Присед с весом тела',1,'минимальный инструмент');
+}
+if(task==='hinge'){
+ if(has('bar')) add('Румынская тяга со штангой',3,'хорошая масштабируемость нагрузки');
+ if(has('kb')) add('Тяга гири',3,'удобный инструмент для обучения паттерну');
+ if(has('db')) add('Румынская тяга с гантелями',2,'доступны гантели');
+ add('Ягодичный мост',1,'вариант без внешнего веса');
+}
+if(task==='push'){
+ if(has('bench')&&has('db')) add('Жим гантелей лёжа',3,'скамья + гантели');
+ if(has('bar')&&has('bench')) add('Жим штанги лёжа',3,'масштабируемая силовая работа');
+ if(has('db')) add('Жим гантелей стоя',2,'доступны гантели');
+ add('Отжимания',1,'универсальный вариант');
+}
+if(task==='pull'){
+ if(has('pull')) add('Подтягивания / тяга собственного веса',3,'турник позволяет масштабировать сложность');
+ if(has('bands')) add('Тяга резинки',2,'легко регулировать сопротивление');
+ if(has('db')) add('Тяга гантели',2,'односторонняя тяга');
+}
+if(task==='carry'){
+ if(has('kb')) add('Фермерская прогулка с гирями',3,'простая задача с хорошей переносимостью');
+ if(has('db')) add('Фермерская прогулка с гантелями',3,'доступна внешняя нагрузка');
+ add('Переноска / ходьба',1,'вариант без специального оборудования');
+}
+if(task==='cardio'){
+ if(has('row')) add('Concept2 RowErg',3,'циклическая работа всего тела');
+ if(has('bike')) add('Air Bike',3,'легко дозировать интенсивность');
+ if(has('ski')) add('Concept2 SkiErg',3,'циклическая работа с акцентом на верх тела');
+ if(has('run')) add('Беговая дорожка',2,'доступна дорожка');
+ add('Ходьба / бег',1,'минимальный инструмент');
+}
+if(task==='control'){
+ if(has('bands')) add('Анти-ротация с резинкой',3,'можно дозировать сопротивление');
+ add('Планка + dead bug',2,'минимальный и понятный вариант');
+}
+if(level==='Начинающий') candidates=candidates.map(x=>({...x,score:x.score+(x.name.includes('штангой')?-1:0)}));
+if(constraints.includes('плеч') && task==='push') candidates=candidates.map(x=>({...x,score:x.name.includes('жим')?-1:x.score,reason:x.reason+'; требуется индивидуальная проверка переносимости'}));
+candidates.sort((a,b)=>b.score-a.score);
+const best=candidates[0], alts=candidates.slice(1,4);
+$('exerciseResult').innerHTML=`<span class="pill good">РЕШЕНИЕ</span><h3>${best.name}</h3><p>${best.reason}</p><p><b>Альтернативы:</b> ${alts.map(x=>x.name).join(' · ')||'нет'}</p><p class="small muted">Фильтры: задача → уровень → ограничения → оборудование → подходящий вариант. При изменении оборудования задача сохраняется.</p>`;
+}
+function missed(){
+let n=+$('remain').value,s=$('missState').value;
+let text;
+if(s==='poor') text=`Оставить ${n} лёгк${n===1?'ую':'ие'} тренировк${n===1?'у':'и'} без попытки компенсировать пропуск. Основной акцент: техника, умеренная работа, восстановление.`;
+else if(s==='tired') text=`Оставить ${n} тренировк${n===1?'у':'и'}, но снизить объём примерно на 15–20%. Не переносить все пропущенные подходы на оставшиеся дни.`;
+else text=`Распределить оставшиеся ${n} тренировк${n===1?'у':'и'} по исходным приоритетам. Не удваивать объём. Сначала сохранить главную задачу недели, затем второстепенную.`;
+$('missResult').innerHTML=`<span class="pill good">НЕДЕЛЯ ПЕРЕСТРОЕНА</span><p>${text}</p><p class="small muted"><b>IBRA:</b> реальная жизнь является входным параметром программы, а не ошибкой пользователя.</p>`;
+saveHistory({priority:'реальная жизнь',decision:'Неделя адаптирована после пропуска'});
+}
+function payload(){return {name:$('name').value,level:$('level').value,goal:$('goal').value,days:$('days').value,duration:$('duration').value,location:$('location').value,schedule:$('schedule').value,constraints:$('constraints').value,equipment:equipment(),tests:{squat:$('squat').value,push:$('push').value,cardio:$('cardio').value,plank:$('plank').value},saved:new Date().toLocaleString()}}
+function save(){localStorage.setItem('ibra_legacy_profile',JSON.stringify(payload()));alert('Профиль сохранён в этом браузере.')}
+function load(){let x=JSON.parse(localStorage.getItem('ibra_legacy_profile')||'null');if(!x)return alert('Сохранённого профиля нет.');$('name').value=x.name||'';$('level').value=x.level||'Начинающий';$('goal').value=x.goal||'fat';$('days').value=x.days||3;$('duration').value=x.duration||'60 минут';$('location').value=x.location||'Зал';$('schedule').value=x.schedule||'';$('constraints').value=x.constraints||'';document.querySelectorAll('#equipment input').forEach(c=>c.checked=(x.equipment||[]).includes(c.value));for(const k of ['squat','push','cardio','plank'])$(k).value=x.tests?.[k]||$(''+k).value;build()}
+function saveHistory(x){let h=JSON.parse(localStorage.getItem('ibra_legacy_history')||'[]');h.unshift({date:new Date().toLocaleString(),name:$('name').value||'Без имени',goal:$('goal').selectedOptions[0].text,priority:x.priority,decision:x.decision});localStorage.setItem('ibra_legacy_history',JSON.stringify(h.slice(0,30)));renderHistory()}
+function renderHistory(){let h=JSON.parse(localStorage.getItem('ibra_legacy_history')||'[]');$('history').innerHTML=h.map(x=>`<tr><td>${x.date}</td><td>${x.name}</td><td>${x.goal}</td><td>${x.priority}</td><td>${x.decision}</td></tr>`).join('')||'<tr><td colspan="5" class="muted">История пока пуста.</td></tr>'}
+function clearAll(){localStorage.removeItem('ibra_legacy_profile');localStorage.removeItem('ibra_legacy_history');location.reload()}
+function mode(m){$('clientMode').classList.toggle('hidden',m!=='client');$('coachMode').classList.toggle('hidden',m!=='coach');$('clientBtn').classList.toggle('primary',m==='client');$('coachBtn').classList.toggle('primary',m==='coach');renderHistory()}
+renderHistory();
+</script>
+</body></html>
